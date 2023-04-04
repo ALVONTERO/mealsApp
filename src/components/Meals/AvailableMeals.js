@@ -33,25 +33,41 @@ import MealItem from "./MealItem/MealItem";
 
 function AvailableMeals() {
   const [meals, setMeals] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios(
-        "https://react-http-base-default-rtdb.firebaseio.com/meals.json"
-      );
-      const data = response.data;
-      const loadedMeals = [];
-      for (const key in data) {
-        loadedMeals.push({
-          key,
-          name: data[key].name,
-          description: data[key].description,
-          price: data[key].price,
-        });
+      try {
+        const response = await axios(
+          "https://react-http-base-default-rtdb.firebaseio.com/meals.json"
+        );
+        const data = response.data;
+        const loadedMeals = [];
+        for (const key in data) {
+          loadedMeals.push({
+            key,
+            name: data[key].name,
+            description: data[key].description,
+            price: data[key].price,
+          });
+        }
+        setMeals(loadedMeals);
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        console.log("Somthing went Wrong!");
+        setError("Somthing went Wrong!");
       }
-      setMeals(loadedMeals);
     };
     fetchData();
   }, []);
+  if (isLoading) {
+    return <p className={classes.mealsLoading}>Loading...</p>;
+  }
+  if (error !== "") {
+    return <p className={classes.mealsError}>{error}</p>;
+  }
   const mealList = meals.map((meal) => (
     <MealItem
       key={meal.key}
