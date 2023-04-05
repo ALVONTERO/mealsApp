@@ -25,12 +25,13 @@ function Cart(props) {
   };
   const submitOrderHandler = async (userData) => {
     setIsSubmitting(true);
-    setDidSubmit(true);
     await axios.post(
       `https://react-http-base-default-rtdb.firebaseio.com/orders.json`,
       { user: userData, orderedItems: cartCtx.items }
     );
     setIsSubmitting(false);
+    setDidSubmit(true);
+    cartCtx.clearCart();
   };
   const modalActions = (
     <div className={classes.actions}>
@@ -71,13 +72,15 @@ function Cart(props) {
       {!isCheckout && modalActions}
     </>
   );
-  const isSubmittingModalContent = <p>Sending Order Data...</p>
-  const didSubmitModalContent = <p>Successfully sent the order!</p>
-  return <Modal onClose={props.onClose}>
-    {!isSubmitting && !didSubmit && cartModalContent}
-    {isSubmitting && isSubmittingModalContent}
-    {!isSubmitting && didSubmit && didSubmitModalContent}
-  </Modal>;
+  const isSubmittingModalContent = <p>Sending Order Data...</p>;
+  const didSubmitModalContent = <p>Successfully sent the order!</p>;
+  return (
+    <Modal onClose={props.onClose}>
+      {!isSubmitting && !didSubmit && cartModalContent}
+      {isSubmitting && isSubmittingModalContent}
+      {!isSubmitting && didSubmit && didSubmitModalContent}
+    </Modal>
+  );
 }
 
 export default Cart;
