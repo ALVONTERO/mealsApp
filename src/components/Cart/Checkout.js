@@ -24,10 +24,10 @@ const Checkout = (props) => {
   const confirmHandler = (event) => {
     event.preventDefault();
     //get user inputs from the form which are save in useRef()
-    const enteredName = nameInputRef.current.value;
-    const enteredStreet = streetInputRef.current.value;
-    const enteredPostalCode = postalCodeInputRef.current.value;
-    const enteredCity = cityInputRef.current.value;
+    let enteredName = nameInputRef.current.value;
+    let enteredStreet = streetInputRef.current.value;
+    let enteredPostalCode = postalCodeInputRef.current.value;
+    let enteredCity = cityInputRef.current.value;
 
     //Check if they are  valid or not
     const enteredNameIsValid = isEmpty(enteredName);
@@ -53,6 +53,16 @@ const Checkout = (props) => {
     if (!formIsValid) {
       return;
     }
+    props.onConfirm({
+        name:enteredName,
+        city:enteredCity,
+        street:enteredStreet,
+        postalCode:enteredPostalCode
+    });
+    enteredName = ''
+    enteredStreet = ''
+    enteredCity = ''
+    enteredPostalCode = ''
   };
 
   //control elements classes

@@ -4,9 +4,13 @@ import Modal from "../UI/Modal";
 import classes from "./Cart.module.css";
 import CartItem from "./CartItem";
 import Checkout from "./Checkout";
+import axios from "axios";
 
 function Cart(props) {
   const [isCheckout, setIsCheckout] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [didSubmit, setDidSubmit] = useState(false);
+
   const cartCtx = useContext(CartContext);
   const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
 
@@ -18,6 +22,15 @@ function Cart(props) {
   };
   const orderHandler = () => {
     setIsCheckout(true);
+  };
+  const submitOrderHandler = async (userData) => {
+    setIsSubmitting(true);
+    setDidSubmit(true);
+    await axios.post(
+      `https://react-http-base-default-rtdb.firebaseio.com/orders.json`,
+      { user: userData, orderedItems: cartCtx.items }
+    );
+    setIsSubmitting(false);
   };
   const modalActions = (
     <div className={classes.actions}>
@@ -45,17 +58,26 @@ function Cart(props) {
       ))}
     </ul>
   );
-  return (
-    <Modal onClose={props.onClose}>
+  const cartModalContent = (
+    <>
       {cartItems}
       <div className={classes.total}>
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      {isCheckout && <Checkout onCancel={props.onClose} />}
+      {isCheckout && (
+        <Checkout onConfirm={submitOrderHandler} onCancel={props.onClose} />
+      )}
       {!isCheckout && modalActions}
-    </Modal>
+    </>
   );
+  const isSubmittingModalContent = <p>Sending Order Data...</p>
+  const didSubmitModalContent = <p>Successfully sent the order!</p>
+  return <Modal onClose={props.onClose}>
+    {!isSubmitting && !didSubmit && cartModalContent}
+    {isSubmitting && isSubmittingModalContent}
+    {!isSubmitting && didSubmit && didSubmitModalContent}
+  </Modal>;
 }
 
 export default Cart;
